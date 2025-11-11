@@ -1,0 +1,488 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pip School</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #e6ded3;
+      color: #222;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      padding-top: 140px;
+      max-width: 100%;
+    }
+
+    /* ===== هدر ===== */
+    header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 50px;
+      background: #e6ded3;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    header.scrolled {
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      position: absolute;
+      font-weight: bold;
+      font-size: 60px;
+      left: 150px;
+      top: 70%;
+      transform: translateY(-50%);
+      white-space: nowrap;
+    }
+
+    /* دکمه برگشت */
+    .back-btn {
+      position: absolute;
+      left: 50px;
+      top: 70%;
+      transform: translateY(-50%);
+      font-size: 26px;
+      color: #333;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      color: crimson;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    /* تولتیپ */
+    .back-btn::after {
+      content: "Back";
+      position: absolute;
+      left: 120%;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.7);
+      color: #fff;
+      padding: 5px 10px;
+      font-size: 14px;
+      border-radius: 5px;
+      opacity: 0;
+      white-space: nowrap;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .back-btn:hover::after {
+      opacity: 1;
+      transform: translateY(-50%) translateX(5px);
+    }
+
+    nav {
+      display: flex;
+      gap: 25px;
+      flex-wrap: nowrap;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: black;
+      font-size: 20px;
+      white-space: nowrap;
+    }
+
+    nav a:hover {
+      color: crimson;
+    }
+
+    /* ===== محتوای صفحه ===== */
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 30px;
+      padding: 40px 60px;
+      max-width: 100%;
+      align-items: start; /* ستون‌ها از بالا هم‌تراز شوند */
+    }
+
+    .project-info h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+
+    .project-info p {
+      margin: 10px 0;
+      font-size: 16px;
+      color: #444;
+    }
+
+    .awards-text {
+      margin-top: 15px;
+      line-height: 1.7;
+      font-size: 15px;
+      color: #555;
+      text-align: justify;
+    }
+
+    .awards-text h3 {
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-size: 18px;
+      color: #333;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr); /* سه ستون */
+      gap: 15px;
+    }
+
+    .gallery img {
+      width: 100%;
+      height: 350px;
+      object-fit: cover;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+
+    .gallery img:hover {
+      transform: scale(1.05);
+    }
+
+    /* ===== مودال ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.9);
+      overflow: hidden;
+      justify-content: center;
+      align-items: center;
+      cursor: zoom-in; 
+    }
+
+    .modal-content {
+      margin:0 auto;
+      display: block;
+      max-width: 100vw;
+      height: 100vh;
+      width: auto;
+      animation: zoom 0.6s;
+      object-fit: contain;
+       -webkit-user-drag: none;
+     -webkit-user-select: none;
+    user-select: none;
+    -moz-user-select: none;
+    }
+
+    @keyframes zoom {
+      from {transform: scale(0);}
+      to {transform: scale(1);}
+    }
+
+    .close {
+      position: absolute;
+      top: 30px;
+      right: 50px;
+      color: #fff;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .close:hover {
+      color: crimson;
+    }
+
+    /* فلش سمت چپ و راست */
+.prev, .next {
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  width: auto;
+  padding: 16px;
+  margin-top: -22px;
+  color: #fff;
+  font-weight: bold;
+  font-size: 40px;
+  transition: 0.3s;
+  user-select: none;
+  border-radius: 0 3px 3px 0;
+}
+
+.next {
+  right: 30px;
+  border-radius: 3px 0 0 3px;
+}
+
+.prev {
+  left: 30px;
+}
+
+.prev:hover, .next:hover {
+  color: crimson;
+}
+
+
+    /* ===== ریسپانسیو موبایل ===== */
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+        padding: 20px;
+      }
+
+      .logo {
+        font-size: 40px;
+        left: 20px;
+      }
+
+      nav {
+        gap: 15px;
+      }
+
+      nav a {
+        font-size: 16px;
+      }
+
+      .search {
+        right: 20px;
+      }
+
+      .gallery img {
+        height: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== هدر ===== -->
+  <header>
+    <div class="back-btn"><i class="fas fa-arrow-left"></i></div>
+    <div class="logo">SBGH</div>
+    <nav>
+      <a href="home.htm">Home</a>
+      <a href="project.htm">Projects</a>
+      <a href="Animations.htm">Animations</a>
+      <a href="awards.htm">Awards</a>
+      <a href="contact.htm">Contact</a>
+       <a href="about me.htm">About Me</a>
+    
+    </nav>
+  </header>
+
+  <!-- ===== محتوای صفحه ===== -->
+  <div class="container">
+    <!-- ستون متن -->
+    <div class="project-info">
+      <h1>Pip School</h1>
+      <p><strong>Type:</strong> Educational</p>
+      <p><strong>Location:</strong> Sistan and Baluchestan , Iran</p>
+      <p><strong>Status:</strong> Under Construction</p>
+      <p><strong>Design Team:</strong> Shabnam Ghadyani, Hadis Hosseini, Mehrnoosh Tajik Davoodi, Sarvin Heidari, Misagh Mackvandi</p>
+      <p><strong>Year:</strong> 2022</p>
+      <p><strong>Awards:</strong> Golden Trezzini Awards, Adex</p>
+
+      <div class="awards-text">
+        <p>Pip School is one of the poor and deprived areas of Nikshahr city in Sistan and Baluchistan province. This deprivation has greatly affected various aspects including education. The aim of this school is to influence the nature, culture, art and native architecture of that region, and its features have been used in design and creating. The line of thought of the project of local form and materials, climate and nature of the region has been formed to create a sense of belonging in a space for creating knowledge.</p>
+
+        <p>The designed spaces that include (library, exam hall, laboratory) are different in terms of lighting, quality of space and visibility. The placement pattern and spaces are designed in such a way that you have easier access to the existing buildings. According to the location of the buildings, there was a middle space for most of the students.</p>
+
+        <p>In the end, the design of Pipe School was formed in response to human needs, climate and in line with Takht project, and its purpose is to improve education while preserving the native values ​​of the region.</p>
+
+        <h3>The Design Process</h3>
+        <p>The design idea of ​​the school originates from the climate, native nature of the region, vegetation and natural ventilation elements such as Kolak and Surak as well as Kapar form in Sistan and Baluchistan region. The school design model is based on modular geometry, which can be implemented in a short period of time due to economic constraints. In addition, the natural geometry of the region, native structures and existing house patterns are used in the facade and landscape design. According to the review of the students' requests, three separate buildings were designed, different from the previous buildings, and also to increase the quality of the existing buildings in the separate buildings.</p>
+
+        <p><strong>Principal Architects:</strong> Nima Keivani, Sina Keivani</p>
+        <h3>Sustainability</h3>
+        <p>The design of the form of the buildings is based on the architecture of the local building and the direction of the prevailing winds of the region. In order to create natural ventilation in the middle space of the building, the tree and the water pond are also used as a positive feature of elements such as Kolak and Surak to take advantage of the wind and sunlight.</p>
+
+        <p>The air cooling filter in Kolak consists of several clay cells which store water in themselves. Evaporation of water on the clay surface of the cooling cells leads to the creation of a cool atmosphere in the environment around the filter. As a result, the air passing through this area gets cooled.</p>
+
+        <h3>Notes</h3>
+        <p>This project was designed for free and charity by Keivani Architects Studio.</p>
+      </div>
+    </div>
+
+    <!-- ستون گالری -->
+    <div class="gallery">
+      <img src="pipschools/pip1.webp" alt="Project Image 1" loading="lazy"  oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip2.webp" alt="Project Image 2" loading="lazy"  oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip3.webp" alt="Project Image 3" loading="lazy"  oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip4.webp" alt="Project Image 4" loading="lazy"  oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip5.webp" alt="Project Image 5" loading="lazy"  oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip6.webp" alt="Project Image 6" loading="lazy"  oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip7.webp" alt="Project Image 7" loading="lazy"  oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip8.webp" alt="Project Image 8" loading="lazy"  oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip9.webp" alt="Project Image 9" loading="lazy"  oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip10.webp" alt="Project Image 10" loading="lazy" oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip11.webp" alt="Project Image 11" loading="lazy" oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip12.webp" alt="Project Image 12" loading="lazy" oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip13.jpg" alt="Project Image 13" loading="lazy" oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip14.webp" alt="Project Image 14" loading="lazy" oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip15.webp" alt="Project Image 15" loading="lazy" oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip16.jpg" alt="Project Image 16" loading="lazy" oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip18.jpg" alt="Project Image 18" loading="lazy" oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip19.webp" alt="Project Image 19" loading="lazy" oncontextmenu="return false;" draggable="false">
+      <img src="pipschools/pip20.webp" alt="Project Image 20" loading="lazy" oncontextmenu="return false;" draggable="false">
+    </div>
+  </div>
+
+  <!-- ===== مودال عکس ===== -->
+  <div id="myModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="img01" oncontextmenu="return false;" draggable="false" alt="">
+
+      <!-- فلش‌ها -->
+  <a class="prev">&#10094;</a>
+  <a class="next">&#10095;</a>
+  </div>
+
+  <script>
+    // گرفتن المان‌های مودال
+  const modal = document.getElementById("myModal");
+  const modalImg = document.getElementById("img01");
+  const closeBtn = document.getElementsByClassName("close")[0];
+
+  // گرفتن همه عکس‌ها
+  const images = document.querySelectorAll(".gallery img");
+  let currentIndex = 0;
+
+  // باز کردن مودال با کلیک روی عکس
+  images.forEach((img, index) => {
+    img.addEventListener("click", () => {
+      modal.style.display = "block";
+      modalImg.src = img.src;
+      currentIndex = index;
+    });
+
+    // جلوگیری از راست‌کلیک روی تصاویر کوچک
+    img.oncontextmenu = function (e) {
+      e.preventDefault();
+    };
+  });
+
+  // بستن مودال با دکمه ×
+  closeBtn.onclick = function () {
+    modal.style.display = "none";
+  };
+
+  // ناوبری با فلش‌ها
+  document.querySelector(".prev").addEventListener("click", () => {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    modalImg.src = images[currentIndex].src;
+  });
+
+  document.querySelector(".next").addEventListener("click", () => {
+    currentIndex = (currentIndex + 1) % images.length;
+    modalImg.src = images[currentIndex].src;
+  });
+
+  // ناوبری با کیبورد
+  document.addEventListener("keydown", (e) => {
+    if (modal.style.display === "block") {
+      if (e.key === "ArrowLeft") {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        modalImg.src = images[currentIndex].src;
+      }
+    }
+  });
+
+  // جلوگیری از ذخیره/کشیدن عکس داخل مودال
+  modalImg.oncontextmenu = function (e) {
+    e.preventDefault();
+  };
+  modalImg.setAttribute("draggable", "false");
+
+//ایکون زوم روی مودال عکسا
+  let scale = 1;
+let isDragging = false;
+let startX, startY, currentX = 0, currentY = 0;
+
+// زوم با اسکرول
+modalImg.onwheel = function(e) {
+  e.preventDefault();
+  modalImg.style.cursor = 'zoom-in'; // هنگام زوم موس تغییر کند
+  if(e.deltaY < 0){
+    scale += 0.1;
+  } else {
+    scale -= 0.1;
+    if(scale < 1) scale = 1;
+  }
+  modalImg.style.transform = `scale(${scale}) translate(${currentX}px, ${currentY}px)`;
+};
+
+// شروع drag
+modalImg.onmousedown = function(e){
+  isDragging = true;
+  startX = e.clientX - currentX;
+  startY = e.clientY - currentY;
+  modalImg.style.cursor = 'grabbing'; // موس هنگام درگ
+};
+
+// درگ موس
+document.onmousemove = function(e){
+  if(!isDragging) return;
+  currentX = e.clientX - startX;
+  currentY = e.clientY - startY;
+  modalImg.style.transform = `scale(${scale}) translate(${currentX}px, ${currentY}px)`;
+};
+
+// پایان درگ
+document.onmouseup = function(){
+  isDragging = false;
+  modalImg.style.cursor = scale > 1 ? 'grab' : 'zoom-in'; // بعد از درگ دوباره نشان موس
+};
+
+  // دکمه برگشت
+  document.querySelector(".back-btn").addEventListener("click", function () {
+    window.history.back(); // برمی‌گرده به صفحه قبلی
+  });
+
+// تغییر رنگ هدر موقع اسکرول
+window.addEventListener("scroll", function() {
+  const header = document.querySelector("header");
+  if (window.scrollY > 50) {
+    header.classList.add("scrolled");
+  } else {
+    header.classList.remove("scrolled");
+  }
+});
+
+// ناوبری با کیبورد
+document.addEventListener("keydown", (e) => {
+  if (modal.style.display === "block") {
+    if (e.key === "ArrowLeft") {
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      modalImg.src = images[currentIndex].src;
+    } else if (e.key === "ArrowRight") {
+      currentIndex = (currentIndex + 1) % images.length;
+      modalImg.src = images[currentIndex].src;
+    } else if (e.key === "Escape") {
+      modal.style.display = "none"; // با ESC مودال بسته بشه
+    }
+  }
+});
+
+  </script>
+</body>
+</html>   
